@@ -188,3 +188,25 @@ func (c *Console) Writer() io.Writer {
 func (c *Console) ANSIWriter() *ansi.Writer {
 	return ansi.NewWriter(c.writer)
 }
+
+// PrintMarkup writes markup text to the console.
+// Markup format: [style]text[/] where style can be:
+//   - Color names: red, blue, green, etc.
+//   - Hex colors: #FF0000
+//   - RGB colors: rgb(255,0,0)
+//   - Attributes: bold, italic, underline, etc.
+//   - Background: "red on blue"
+//   - Combined: "bold red on white"
+func (c *Console) PrintMarkup(m string) (n int, err error) {
+	return c.printMarkupInternal(m)
+}
+
+// PrintMarkupln writes markup text to the console followed by a newline.
+func (c *Console) PrintMarkupln(markup string) (n int, err error) {
+	n, err = c.PrintMarkup(markup)
+	if err != nil {
+		return n, err
+	}
+	n2, err := c.writer.Write([]byte("\n"))
+	return n + n2, err
+}

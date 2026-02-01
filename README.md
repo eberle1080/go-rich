@@ -6,9 +6,10 @@ A Go port of Python's [rich library](https://github.com/Textualize/rich) for bea
 
 - 🎨 **Rich Colors**: ANSI, 256-color, and true color (16M) RGB support
 - 💅 **Text Styling**: Bold, italic, underline, strikethrough, dim, and reverse
+- 🏷️  **Markup Support**: Parse rich markup strings like `[bold red]text[/]`
 - 🎯 **Automatic Detection**: Detects terminal capabilities automatically
 - 🔧 **Composable**: Fluent API for building complex styles
-- 📦 **Zero Dependencies**: Only uses Go standard library (except `golang.org/x/term` for terminal detection)
+- 📦 **Minimal Dependencies**: Only uses Go standard library (+ `golang.org/x/term` for terminal detection)
 
 ## Installation
 
@@ -54,6 +55,14 @@ go run main.go
 
 # Style showcase
 cd examples/styles
+go run main.go
+
+# Markup examples
+cd examples/markup
+go run main.go
+
+# Complete showcase
+cd examples/showcase
 go run main.go
 ```
 
@@ -126,11 +135,43 @@ console.SetColorMode(rich.ColorModeTrueColor)
 
 Respects the `NO_COLOR` environment variable (https://no-color.org/).
 
+### Markup
+
+Print styled text using markup tags:
+
+```go
+console.PrintMarkupln("[bold red]Error:[/] File not found")
+console.PrintMarkupln("[green]✓[/] Success")
+console.PrintMarkupln("[bold yellow on blue]Warning[/]")
+```
+
+**Markup syntax:**
+- Colors: `[red]`, `[blue]`, `[#FF0000]`, `[rgb(255,0,0)]`
+- Attributes: `[bold]`, `[italic]`, `[underline]`, `[dim]`
+- Background: `[red on white]`
+- Combined: `[bold red on white]`
+- Close tag: `[/]`
+- Escape: `[[` for literal `[`
+
+**Utility functions:**
+```go
+// Remove all markup tags
+plain := rich.StripMarkup("[bold]text[/]") // "text"
+
+// Escape markup
+escaped := rich.EscapeMarkup("[tag]") // "[[tag]"
+
+// Validate markup
+err := rich.ValidateMarkup("[bold]text[/]") // nil
+```
+
 ## Roadmap
 
-This is Phase 1 (Foundation) of the implementation. Future phases will add:
+**Completed:**
+- ✅ **Phase 1**: Foundation (colors, styles, segments)
+- ✅ **Phase 2**: Markup support (`[bold red]text[/]`)
 
-- **Phase 2**: Markup support (`[bold red]text[/]`)
+**Upcoming:**
 - **Phase 3**: Tables with borders and styling
 - **Phase 4**: Panels (bordered containers)
 - **Phase 5**: Progress bars and live updates
