@@ -7,6 +7,7 @@ A Go port of Python's [rich library](https://github.com/Textualize/rich) for bea
 - 🎨 **Rich Colors**: ANSI, 256-color, and true color (16M) RGB support
 - 💅 **Text Styling**: Bold, italic, underline, strikethrough, dim, and reverse
 - 🏷️  **Markup Support**: Parse rich markup strings like `[bold red]text[/]`
+- 📊 **Tables**: Beautiful tables with borders, alignment, and styling
 - 🎯 **Automatic Detection**: Detects terminal capabilities automatically
 - 🔧 **Composable**: Fluent API for building complex styles
 - 📦 **Minimal Dependencies**: Only uses Go standard library (+ `golang.org/x/term` for terminal detection)
@@ -59,6 +60,10 @@ go run main.go
 
 # Markup examples
 cd examples/markup
+go run main.go
+
+# Table examples
+cd examples/table
 go run main.go
 
 # Complete showcase
@@ -165,14 +170,53 @@ escaped := rich.EscapeMarkup("[tag]") // "[[tag]"
 err := rich.ValidateMarkup("[bold]text[/]") // nil
 ```
 
+### Tables
+
+Create beautiful tables with borders, alignment, and custom styles:
+
+```go
+import "github.com/eberle1080/go-rich/table"
+
+// Simple table
+t := table.New().
+    Headers("Name", "Age", "City").
+    Row("Alice", "30", "New York").
+    Row("Bob", "25", "Los Angeles")
+
+console.Render(t)
+```
+
+**Table features:**
+- Multiple box styles: `BoxSimple`, `BoxRounded`, `BoxDouble`, `BoxHeavy`, `BoxASCII`
+- Column alignment: Left, Center, Right
+- Custom styles for headers, cells, and borders
+- Titles and configurable padding
+- Fixed or auto-calculated column widths
+
+**Advanced example:**
+```go
+t := table.New().
+    Box(table.BoxRounded).
+    Title("Employee Directory").
+    BorderStyle(rich.NewStyle().Foreground(rich.Blue)).
+    AddColumn(table.NewColumn("Name").WithAlign(table.AlignLeft)).
+    AddColumn(table.NewColumn("Status").
+        WithAlign(table.AlignCenter).
+        WithCellStyle(rich.NewStyle().Foreground(rich.Green))).
+    Row("Alice Smith", "Active").
+    Row("Bob Jones", "Pending")
+
+console.Render(t)
+```
+
 ## Roadmap
 
 **Completed:**
 - ✅ **Phase 1**: Foundation (colors, styles, segments)
 - ✅ **Phase 2**: Markup support (`[bold red]text[/]`)
+- ✅ **Phase 3**: Tables with borders and styling
 
 **Upcoming:**
-- **Phase 3**: Tables with borders and styling
 - **Phase 4**: Panels (bordered containers)
 - **Phase 5**: Progress bars and live updates
 

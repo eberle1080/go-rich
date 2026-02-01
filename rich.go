@@ -210,3 +210,19 @@ func (c *Console) PrintMarkupln(markup string) (n int, err error) {
 	n2, err := c.writer.Write([]byte("\n"))
 	return n + n2, err
 }
+
+// Render renders a Renderable to the console.
+func (c *Console) Render(r Renderable) (n int, err error) {
+	segments := r.Render(c, c.width)
+	return c.PrintSegments(segments)
+}
+
+// Renderln renders a Renderable to the console followed by a newline.
+func (c *Console) Renderln(r Renderable) (n int, err error) {
+	n, err = c.Render(r)
+	if err != nil {
+		return n, err
+	}
+	n2, err := c.writer.Write([]byte("\n"))
+	return n + n2, err
+}
