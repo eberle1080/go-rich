@@ -8,6 +8,7 @@ A Go port of Python's [rich library](https://github.com/Textualize/rich) for bea
 - 💅 **Text Styling**: Bold, italic, underline, strikethrough, dim, and reverse
 - 🏷️  **Markup Support**: Parse rich markup strings like `[bold red]text[/]`
 - 📊 **Tables**: Beautiful tables with borders, alignment, and styling
+- 📦 **Panels**: Bordered containers for highlighting content
 - 🎯 **Automatic Detection**: Detects terminal capabilities automatically
 - 🔧 **Composable**: Fluent API for building complex styles
 - 📦 **Minimal Dependencies**: Only uses Go standard library (+ `golang.org/x/term` for terminal detection)
@@ -64,6 +65,10 @@ go run main.go
 
 # Table examples
 cd examples/table
+go run main.go
+
+# Panel examples
+cd examples/panel
 go run main.go
 
 # Complete showcase
@@ -209,15 +214,52 @@ t := table.New().
 console.Render(t)
 ```
 
+### Panels
+
+Create bordered containers for highlighting content:
+
+```go
+import "github.com/eberle1080/go-rich/panel"
+
+// Simple panel
+p := panel.New("Important message!").
+    Title("Warning").
+    BorderStyle(rich.NewStyle().Foreground(rich.Yellow))
+
+console.Render(p)
+```
+
+**Panel features:**
+- Titles and subtitles (centered)
+- All box styles from tables: `BoxSimple`, `BoxRounded`, `BoxDouble`, `BoxHeavy`, `BoxASCII`
+- Content alignment: Left, Center, Right
+- Custom padding and width control
+- Support for any Renderable content (text, tables, etc.)
+
+**Advanced example:**
+```go
+// Error panel
+p := panel.New("❌ Operation failed!").
+    Title("Error").
+    Subtitle("Contact support").
+    Box(panel.BoxDouble).
+    BorderStyle(rich.NewStyle().Foreground(rich.BrightRed)).
+    TitleStyle(rich.NewStyle().Bold().Foreground(rich.BrightRed)).
+    Align(panel.AlignCenter).
+    Width(60)
+
+console.Render(p)
+```
+
 ## Roadmap
 
 **Completed:**
 - ✅ **Phase 1**: Foundation (colors, styles, segments)
 - ✅ **Phase 2**: Markup support (`[bold red]text[/]`)
 - ✅ **Phase 3**: Tables with borders and styling
+- ✅ **Phase 4**: Panels (bordered containers)
 
 **Upcoming:**
-- **Phase 4**: Panels (bordered containers)
 - **Phase 5**: Progress bars and live updates
 
 ## Design Philosophy
