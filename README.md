@@ -9,6 +9,7 @@ A Go port of Python's [rich library](https://github.com/Textualize/rich) for bea
 - 🏷️  **Markup Support**: Parse rich markup strings like `[bold red]text[/]`
 - 📊 **Tables**: Beautiful tables with borders, alignment, and styling
 - 📦 **Panels**: Bordered containers for highlighting content
+- 📈 **Progress Bars**: Live progress bars and spinners with speed/ETA tracking
 - 🎯 **Automatic Detection**: Detects terminal capabilities automatically
 - 🔧 **Composable**: Fluent API for building complex styles
 - 📦 **Minimal Dependencies**: Only uses Go standard library (+ `golang.org/x/term` for terminal detection)
@@ -69,6 +70,10 @@ go run main.go
 
 # Panel examples
 cd examples/panel
+go run main.go
+
+# Progress bar examples
+cd examples/progress
 go run main.go
 
 # Complete showcase
@@ -251,6 +256,66 @@ p := panel.New("❌ Operation failed!").
 console.Render(p)
 ```
 
+### Progress Bars
+
+Display progress for long-running operations:
+
+```go
+import "github.com/eberle1080/go-rich/progress"
+
+// Simple progress bar
+bar := progress.NewBar(100).
+    Description("Download").
+    Width(40).
+    CompleteStyle(rich.NewStyle().Foreground(rich.Green))
+
+for i := 0; i <= 100; i++ {
+    bar.SetProgress(int64(i))
+    console.Render(bar)
+    console.Println()
+    time.Sleep(50 * time.Millisecond)
+}
+
+// Live updates
+prog := progress.New(console)
+task := prog.AddBar("Processing", 1000)
+prog.Start()
+
+for i := 0; i <= 1000; i++ {
+    prog.Update(task, int64(i))
+    time.Sleep(10 * time.Millisecond)
+}
+
+prog.Stop()
+
+// Multiple concurrent bars
+download := prog.AddBar("Download", 1000)
+process := prog.AddBar("Process", 500)
+upload := prog.AddBar("Upload", 750)
+
+// Spinners for indeterminate progress
+spinner := progress.NewSpinner(progress.SpinnerDots).
+    Description("Loading...").
+    Style(rich.NewStyle().Foreground(rich.Cyan))
+
+// Automatic progress with io.Reader
+reader := progress.NewReader(file, func(n int) {
+    prog.Advance(task, int64(n))
+})
+io.Copy(dest, reader)
+```
+
+Features:
+- Static and live rendering modes
+- Multiple concurrent progress bars
+- 10+ built-in spinner styles
+- Speed and ETA calculation
+- io.Reader/Writer wrappers for automatic tracking
+- Thread-safe for concurrent updates
+- Customizable appearance and behavior
+
+See [progress/README.md](progress/README.md) for detailed documentation.
+
 ## Roadmap
 
 **Completed:**
@@ -258,9 +323,7 @@ console.Render(p)
 - ✅ **Phase 2**: Markup support (`[bold red]text[/]`)
 - ✅ **Phase 3**: Tables with borders and styling
 - ✅ **Phase 4**: Panels (bordered containers)
-
-**Upcoming:**
-- **Phase 5**: Progress bars and live updates
+- ✅ **Phase 5**: Progress bars and live updates
 
 ## Design Philosophy
 
