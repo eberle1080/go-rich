@@ -405,3 +405,95 @@ func Named(name string) (RGBColor, error) {
 	}
 	return color, nil
 }
+
+// ColorRGB extracts the RGB components from any Color value.
+// Returns (r, g, b, true) for RGBColor and ANSI256Color (approximated),
+// (r, g, b, false) for ANSIColor (returns representative values), and
+// (0, 0, 0, false) for nil or unrecognised types.
+func ColorRGB(c Color) (r, g, b uint8, ok bool) {
+	if c == nil {
+		return 0, 0, 0, false
+	}
+	switch v := c.(type) {
+	case RGBColor:
+		return v.R, v.G, v.B, true
+	case ANSI256Color:
+		rgb := v.toRGB()
+		return rgb.R, rgb.G, rgb.B, true
+	case ANSIColor:
+		rgb := v.toRGB()
+		return rgb.R, rgb.G, rgb.B, false
+	}
+	return 0, 0, 0, false
+}
+
+// ANSIIndex returns the ANSI color index (0-15) if c is an ANSIColor,
+// or (0, false) otherwise.
+func ANSIIndex(c Color) (int, bool) {
+	if a, ok := c.(ANSIColor); ok {
+		return int(a), true
+	}
+	return 0, false
+}
+
+// Gray returns an RGBColor representing a neutral gray with the given luminance.
+func Gray(lum uint8) RGBColor {
+	return RGBColor{R: lum, G: lum, B: lum}
+}
+
+// RGBAColor creates an RGBColor from RGBA components. The alpha channel is
+// ignored since terminal colors have no true alpha compositing.
+func RGBAColor(r, g, b, _ uint8) RGBColor {
+	return RGBColor{R: r, G: g, B: b}
+}
+
+// toRGB returns an approximate RGB representation for ANSI256Color.
+func (c ANSI256Color) toRGB() RGBColor {
+	idx := int(c)
+	if idx < 16 {
+		// Delegate to ANSIColor
+		return ANSIColor(idx).toRGB()
+	}
+	if idx >= 232 {
+		// Grayscale ramp 232-255
+		g := uint8(8 + (idx-232)*10)
+		return RGBColor{R: g, G: g, B: g}
+	}
+	// 216-color cube: indices 16-231
+	idx -= 16
+	b := uint8((idx % 6) * 51)
+	idx /= 6
+	g := uint8((idx % 6) * 51)
+	idx /= 6
+	r := uint8((idx % 6) * 51)
+	return RGBColor{R: r, G: g, B: b}
+}
+
+// toRGB returns an approximate RGB representation for a standard ANSIColor.
+// These are typical terminal color values; actual rendering depends on the
+// terminal's color theme.
+func (c ANSIColor) toRGB() RGBColor {
+	// Standard VGA palette approximation.
+	var table = [16]RGBColor{
+		{0, 0, 0},       // Black
+		{170, 0, 0},     // Red
+		{0, 170, 0},     // Green
+		{170, 85, 0},    // Yellow/Brown
+		{0, 0, 170},     // Blue
+		{170, 0, 170},   // Magenta
+		{0, 170, 170},   // Cyan
+		{170, 170, 170}, // White
+		{85, 85, 85},    // BrightBlack/Gray
+		{255, 85, 85},   // BrightRed
+		{85, 255, 85},   // BrightGreen
+		{255, 255, 85},  // BrightYellow
+		{85, 85, 255},   // BrightBlue
+		{255, 85, 255},  // BrightMagenta
+		{85, 255, 255},  // BrightCyan
+		{255, 255, 255}, // BrightWhite
+	}
+	if int(c) >= 0 && int(c) < 16 {
+		return table[c]
+	}
+	return RGBColor{128, 128, 128}
+}

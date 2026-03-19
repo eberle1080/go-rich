@@ -142,6 +142,41 @@ func (s Style) Render(text string) StyledText {
 	}
 }
 
+// FgColor returns the foreground color, or nil if none is set.
+func (s Style) FgColor() Color { return s.fg }
+
+// BgColor returns the background color, or nil if none is set.
+func (s Style) BgColor() Color { return s.bg }
+
+// IsBold reports whether bold is enabled.
+func (s Style) IsBold() bool { return s.bold }
+
+// IsItalic reports whether italic is enabled.
+func (s Style) IsItalic() bool { return s.italic }
+
+// IsUnderline reports whether underline is enabled.
+func (s Style) IsUnderline() bool { return s.underline }
+
+// IsStrikethrough reports whether strikethrough is enabled.
+func (s Style) IsStrikethrough() bool { return s.strikethrough }
+
+// IsDim reports whether dim/faint is enabled.
+func (s Style) IsDim() bool { return s.dim }
+
+// IsReverse reports whether reverse video is enabled.
+func (s Style) IsReverse() bool { return s.reverse }
+
+// ClearDim returns a copy of this style with dim disabled.
+func (s Style) ClearDim() Style { s.dim = false; return s }
+
+// WithFg returns a copy of this style with the foreground color replaced.
+// Passing nil clears the foreground color.
+func (s Style) WithFg(c Color) Style { s.fg = c; return s }
+
+// WithBg returns a copy of this style with the background color replaced.
+// Passing nil clears the background color.
+func (s Style) WithBg(c Color) Style { s.bg = c; return s }
+
 // toANSI generates the ANSI escape sequence for this style.
 // Returns an empty string if the color mode is ColorModeNone.
 //
